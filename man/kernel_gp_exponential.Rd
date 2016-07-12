@@ -11,9 +11,9 @@ kernel_gp_exponential(x1, x2, theta, power = 2)
 
 \item{x2}{a numeric vector.}
 
-\item{power}{a scalar.}
+\item{theta}{a numeric vetor.}
 
-\item{theata}{a numeric vetor.}
+\item{power}{a scalar.}
 }
 \description{
 Exponential kernel for GP

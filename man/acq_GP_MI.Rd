@@ -6,6 +6,16 @@
 \usage{
 acq_GP_MI(delta = 1e-06, alpha = log(2/delta), kappa = sqrt(alpha))
 }
+\arguments{
+\item{delta}{a scalar.}
+
+\item{alpha}{a scalar.}
+
+\item{kappa}{a scalar.}
+}
+\value{
+acquisition function GP-UCB
+}
 \description{
 Acquisition Function GP-MI (Mutual Information)
 }

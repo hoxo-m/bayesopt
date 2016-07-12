@@ -1,5 +1,9 @@
 #' Compute covaiance matrix
 #'
+#' @param x_mat a matrix.
+#' @param theta a numeric vector.
+#' @param kernel_func a function.
+#'
 #' @return covariance matrix
 #'
 compute_covariance_matrix <- function(x_mat, theta,

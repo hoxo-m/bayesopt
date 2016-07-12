@@ -1,5 +1,9 @@
 #' Estimate Hyper Parameters of GP by Empirical Bayes Method
 #'
+#' @param y a numeric vector.
+#' @param x_mat a matrix.
+#' @param kernel_func a function.
+#'
 #' @importFrom assertthat assert_that
 #' @importFrom stats optim
 #'

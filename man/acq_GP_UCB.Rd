@@ -6,6 +6,14 @@
 \usage{
 acq_GP_UCB(beta = log(2/1e-06), kappa = sqrt(beta))
 }
+\arguments{
+\item{beta}{a scalar.}
+
+\item{kappa}{a scalar.}
+}
+\value{
+acquisition function GP-UCB
+}
 \description{
 Acquisition Function GP-UCB (Upper Confidence Bound)
 }

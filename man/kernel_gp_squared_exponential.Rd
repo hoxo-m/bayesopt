@@ -11,7 +11,7 @@ kernel_gp_squared_exponential(x1, x2, theta)
 
 \item{x2}{a numeric vector.}
 
-\item{theata}{a numeric vetor.}
+\item{theta}{a numeric vetor.}
 }
 \description{
 Squared exponential kernel for GP

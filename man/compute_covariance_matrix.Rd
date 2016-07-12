@@ -7,6 +7,13 @@
 compute_covariance_matrix(x_mat, theta,
   kernel_func = kernel_gp_squared_exponential)
 }
+\arguments{
+\item{x_mat}{a matrix.}
+
+\item{theta}{a numeric vector.}
+
+\item{kernel_func}{a function.}
+}
 \value{
 covariance matrix
 }

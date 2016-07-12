@@ -6,6 +6,13 @@
 \usage{
 estimate_hyperparam(y, x_mat, kernel_func = kernel_gp_squared_exponential)
 }
+\arguments{
+\item{y}{a numeric vector.}
+
+\item{x_mat}{a matrix.}
+
+\item{kernel_func}{a function.}
+}
 \description{
 Estimate Hyper Parameters of GP by Empirical Bayes Method
 }

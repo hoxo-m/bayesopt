@@ -1,5 +1,10 @@
 #' Acquisition Function GP-UCB (Upper Confidence Bound)
 #'
+#' @param beta a scalar.
+#' @param kappa a scalar.
+#'
+#' @return acquisition function GP-UCB
+#'
 #' @export
 acq_GP_UCB <- function(beta = log(2/1e-6), kappa = sqrt(beta)) {
   if (length(kappa) > 1) {
@@ -20,6 +25,12 @@ acq_GP_UCB <- function(beta = log(2/1e-6), kappa = sqrt(beta)) {
 
 
 #' Acquisition Function GP-MI (Mutual Information)
+#'
+#' @param delta a scalar.
+#' @param alpha a scalar.
+#' @param kappa a scalar.
+#'
+#' @return acquisition function GP-UCB
 #'
 #' @export
 acq_GP_MI <- function(delta = 1e-6, alpha = log(2/delta), kappa = sqrt(alpha)) {
