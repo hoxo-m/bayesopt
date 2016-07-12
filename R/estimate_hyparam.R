@@ -1,5 +1,7 @@
 #' Estimate Hyper Parameters of GP by Empirical Bayes Method
 #'
+#' @importFrom assertthat assert_that
+#' @importFrom stats optim
 #'
 estimate_hyperparam <- function(y, x_mat, kernel_func = kernel_gp_squared_exponential) {
   n_dim <- ncol(x_mat)
@@ -28,7 +30,7 @@ estimate_hyperparam <- function(y, x_mat, kernel_func = kernel_gp_squared_expone
   initial_vars <- c(m = 1, nu = 0, theta0 = 0, initial_theta)
 
   result <- optim(initial_vars, obj_func, control = list(trace = 0, fnscale = -1, maxit = 500))
-  assertthat::assert_that(result$convergence == 0)
+  assert_that(result$convergence == 0)
   opt_m <- unname(result$par["m"])
   opt_nu <- unname(exp(result$par["nu"]))
   opt_theta0 <- unname(exp(result$par["theta0"]))

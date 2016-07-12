@@ -6,6 +6,8 @@ Authors@R: person("Koji", "Makiyama", email = "hoxo.smile@gmail.com", role = c("
 Description: Bayesian optimization.
 License: MIT + file LICENSE
 Imports:
-    GPfit
+    assertthat,
+    GPfit,
+    stats
 LazyData: TRUE
 RoxygenNote: 5.0.1
