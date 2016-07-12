@@ -34,6 +34,14 @@ cat(sprintf("The best parameter is {'x': %f} with a score of %f", bo1$opt_x, bo1
 ## The best parameter is {'x': 0.797980} with a score of 7.916722
 ```
 
+
+```r
+library(GPfit)
+plot(bo1$gp[[12]])
+```
+
+![](README_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+
 ## Related Work
 
 - [rBayesianOptimization](https://cran.r-project.org/web/packages/rBayesianOptimization/index.html)

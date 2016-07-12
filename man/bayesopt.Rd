@@ -5,8 +5,7 @@
 \title{Bayesian Optimization}
 \usage{
 bayesopt(objective_func, ..., iter = 10, kernel = c("matern5_2",
-  "matern3_2", "square_exp"), acq_func = c("mutual_information",
-  "confidence_bound"), k = sqrt(log(2/(1e-06))), plot = FALSE)
+  "matern3_2", "square_exp"), acq_func = acq_GP_UCB(), plot = FALSE)
 }
 \arguments{
 \item{objective_func}{a function.}
@@ -17,9 +16,7 @@ bayesopt(objective_func, ..., iter = 10, kernel = c("matern5_2",
 
 \item{kernel}{a character string.}
 
-\item{acq_func}{a character string.}
-
-\item{k}{a number.}
+\item{acq_func}{a function.}
 
 \item{plot}{logical.}
 }

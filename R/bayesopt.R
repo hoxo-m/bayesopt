@@ -4,8 +4,7 @@
 #' @param ... list of parameters.
 #' @param iter an integer.
 #' @param kernel a character string.
-#' @param acq_func a character string.
-#' @param k a number.
+#' @param acq_func a function.
 #' @param plot logical.
 #'
 #' @return a list
@@ -15,12 +14,10 @@
 #' @export
 bayesopt <- function(objective_func, ..., iter = 10,
                      kernel = c("matern5_2", "matern3_2", "square_exp"),
-                     acq_func = c("mutual_information", "confidence_bound"),
-                     k = sqrt(log(2/(1e-6))), plot = FALSE) {
+                     acq_func = acq_GP_UCB(), plot = FALSE) {
   # Prepare -----------------------------------------------------------------
   objective_func <- match.fun(objective_func)
   kernel <- match.arg(kernel)
-  acq_func <- match.arg(acq_func)
   parameter_list <- list(...)
   dimension <- length(parameter_list)
   grid <- unname(expand.grid(parameter_list, KEEP.OUT.ATTRS = FALSE))
@@ -36,23 +33,6 @@ bayesopt <- function(objective_func, ..., iter = 10,
   } else {
     gpfit <- function(inds, ys) {
       GP_fit(grid[inds, ], ys, corr = list(type = "exponential", power = 2))
-    }
-  }
-  if(acq_func == "mutual_information") {
-    mutual_info_env <- new.env(parent = emptyenv())
-    assign("prev_vars", c(), envir = mutual_info_env)
-    acq_func <- function(mu, var) {
-      prev_vars <- mutual_info_env$prev_vars
-      sum_prev_vars <- sum(prev_vars)
-      acqs <- mu + k * (sqrt(var + sum_prev_vars) - sqrt(sum_prev_vars))
-      ind <- which.max(acqs)
-      assign("prev_vars", c(prev_vars, var[ind]), envir = mutual_info_env)
-      ind
-    }
-  } else {
-    acq_func <- function(mu, var) {
-      acqs <- mu + k * sqrt(var)
-      which.max(acqs)
     }
   }
   # Initialize --------------------------------------------------------------

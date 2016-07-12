@@ -33,6 +33,11 @@ bo1 <- bayesopt(objective_func, x, iter = 15)
 cat(sprintf("The best parameter is {'x': %f} with a score of %f", bo1$opt_x, bo1$opt_y))
 ```
 
+```{r}
+library(GPfit)
+plot(bo1$gp[[12]])
+```
+
 ## Related Work
 
 - [rBayesianOptimization](https://cran.r-project.org/web/packages/rBayesianOptimization/index.html)
