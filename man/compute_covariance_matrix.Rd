@@ -4,7 +4,7 @@
 \alias{compute_covariance_matrix}
 \title{Compute covaiance matrix}
 \usage{
-compute_covariance_matrix(x_mat, nu, theta,
+compute_covariance_matrix(x_mat, nu, theta, theta0,
   kernel_func = kernel_gp_squared_exponential)
 }
 \arguments{

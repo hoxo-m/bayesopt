@@ -5,11 +5,14 @@
 #' @param theta a numeric vector.
 #' @param kernel_func a function.
 #'
+#' @importFrom assertthat assert_that
+#'
 #' @return covariance matrix
 #'
-compute_covariance_matrix <- function(x_mat, nu, theta,
+compute_covariance_matrix <- function(x_mat, nu, theta, theta0,
                               kernel_func = kernel_gp_squared_exponential) {
   n <- nrow(x_mat)
+  assert_that(length(theta) == 1 || ncol(x_mat) == length(theta))
   result_mat <- matrix(0, nrow = n, ncol = n)
   for (i in 1:n) {
     for (j in i:n) {
@@ -22,5 +25,5 @@ compute_covariance_matrix <- function(x_mat, nu, theta,
       }
     }
   }
-  result_mat
+  theta0 * result_mat
 }
