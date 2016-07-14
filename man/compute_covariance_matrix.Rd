@@ -4,11 +4,13 @@
 \alias{compute_covariance_matrix}
 \title{Compute covaiance matrix}
 \usage{
-compute_covariance_matrix(x_mat, theta,
+compute_covariance_matrix(x_mat, nu, theta,
   kernel_func = kernel_gp_squared_exponential)
 }
 \arguments{
 \item{x_mat}{a matrix.}
+
+\item{nu}{a scalar.}
 
 \item{theta}{a numeric vector.}
 

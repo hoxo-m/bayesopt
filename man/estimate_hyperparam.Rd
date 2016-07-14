@@ -4,12 +4,12 @@
 \alias{estimate_hyperparam}
 \title{Estimate Hyper Parameters of GP by Empirical Bayes Method}
 \usage{
-estimate_hyperparam(y, x_mat, kernel_func = kernel_gp_squared_exponential)
+estimate_hyperparam(x_mat, y, kernel_func = kernel_gp_squared_exponential)
 }
 \arguments{
-\item{y}{a numeric vector.}
-
 \item{x_mat}{a matrix.}
+
+\item{y}{a numeric vector.}
 
 \item{kernel_func}{a function.}
 }
