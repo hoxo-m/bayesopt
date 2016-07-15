@@ -7,7 +7,7 @@
 #' @importFrom assertthat assert_that
 #' @importFrom stats optim
 #'
-estimate_hyperparam <- function(x_mat, y, kernel_func = kernel_gp_squared_exponential) {
+estimate_hyperparam <- function(x_mat, y, kernel_func = kernel_gp_squared_exponential, debug = FALSE) {
   n_dim <- ncol(x_mat)
 
   obj_func <- function(params) {
@@ -25,12 +25,11 @@ estimate_hyperparam <- function(x_mat, y, kernel_func = kernel_gp_squared_expone
     log_likelihood
   }
 
-  initial_vars <- c(nu = 1, theta0 = 1, rep(1, n_dim))
-  # initial_vars <- c(theta0 = 1, rep(1, n_dim))
+  initial_vars <- c(nu = 0, theta0 = 1, rep(1, n_dim))
 
-  # pre <- optim(initial_vars, obj_func, control = list(trace = 1, fnscale = -1, maxit = 500), method = "BFGS")
-  # assert_that(pre$convergence == 0)
-  result <- optim(initial_vars, obj_func, control = list(trace = 1, fnscale = -1, maxit = 5000))
+  pre <- optim(initial_vars, obj_func, control = list(trace = debug, fnscale = -1), method = "BFGS")
+  assert_that(pre$convergence == 0)
+  result <- optim(pre$par, obj_func, control = list(trace = debug, fnscale = -1, maxit = 1000))
   assert_that(result$convergence == 0)
   opt_nu <- unname(result$par[1])
   opt_theta0 <- unname(result$par[2])
@@ -39,7 +38,7 @@ estimate_hyperparam <- function(x_mat, y, kernel_func = kernel_gp_squared_expone
 }
 
 
-estimate_hyperparam2 <- function(x_mat, y, kernel_func = kernel_gp_squared_exponential) {
+estimate_hyperparam2 <- function(x_mat, y, kernel_func = kernel_gp_squared_exponential, debug=FALSE) {
   n_dim <- ncol(x_mat)
 
   obj_func <- function(params) {
@@ -58,9 +57,9 @@ estimate_hyperparam2 <- function(x_mat, y, kernel_func = kernel_gp_squared_expon
   # initial_vars <- c(nu = 1, theta0 = 1, rep(1, n_dim))
   initial_vars <- c(theta0 = 1, rep(1, n_dim))
 
-  # pre <- optim(initial_vars, obj_func, control = list(trace = 1, fnscale = -1, maxit = 500), method = "BFGS")
+  # pre <- optim(initial_vars, obj_func, control = list(trace = debug, fnscale = -1, maxit = 500), method = "BFGS")
   # assert_that(pre$convergence == 0)
-  result <- optim(initial_vars, obj_func, control = list(trace = 1, fnscale = -1, maxit = 500))
+  result <- optim(initial_vars, obj_func, control = list(trace = debug, fnscale = -1, maxit = 500))
   assert_that(result$convergence == 0)
   opt_theta0 <- unname(result$par[1])
   opt_theta <- unname(result$par[-(1)])
