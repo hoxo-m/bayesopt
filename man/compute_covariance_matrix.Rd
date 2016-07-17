@@ -14,6 +14,8 @@ compute_covariance_matrix(x_mat, nu, theta, theta0,
 
 \item{theta}{a numeric vector.}
 
+\item{theta0}{a numeric vector.}
+
 \item{kernel_func}{a function.}
 }
 \value{

@@ -1,13 +1,15 @@
 Package: bayesopt
 Type: Package
 Title: Bayesian Optimization
-Version: 0.0.0.9001
+Version: 0.0.0.9002
 Authors@R: person("Koji", "Makiyama", email = "hoxo.smile@gmail.com", role = c("cre", "aut"))
 Description: Bayesian optimization.
 License: MIT + file LICENSE
 Imports:
     assertthat,
     GPfit,
+    Matrix,
+    methods,
     stats
 LazyData: TRUE
 RoxygenNote: 5.0.1

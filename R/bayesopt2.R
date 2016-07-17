@@ -3,13 +3,16 @@
 #' @param objective_func a function.
 #' @param ... list of parameters.
 #' @param iter an integer.
+#' @param noise logical.
 #' @param kernel a character string.
 #' @param acq_func a function.
 #'
 #' @return a list
 #'
+#' @importFrom methods formalArgs
+#'
 #' @export
-bayesopt2 <- function(objective_func, ..., iter = 10,
+bayesopt2 <- function(objective_func, ..., iter = 10, noise = TRUE,
                       kernel = c("squared_exponential"),
                       acq_func = acq_GP_UCB()) {
   # Prepare -----------------------------------------------------------------
@@ -18,13 +21,14 @@ bayesopt2 <- function(objective_func, ..., iter = 10,
   parameter_list <- list(...)
   dimension <- length(parameter_list)
   grid <- as.matrix(expand.grid(parameter_list, KEEP.OUT.ATTRS = FALSE))
-  colnames(grid) <- formalArgs(Himmelblau)
+  colnames(grid) <- formalArgs(objective_func)
   evaluate <- function(i) do.call(objective_func, args = as.list(grid[i,]))
   kernel_func <- switch (kernel,
     squared_exponential = kernel_gp_squared_exponential
   )
   # Initialize --------------------------------------------------------------
-  inds <- sample(nrow(grid), size = 3)
+  initial_size <- dimension + 1
+  inds <- sample(nrow(grid), size = initial_size)
   ys <- c()
   for(i in inds) {
     y <- evaluate(i)
@@ -32,8 +36,8 @@ bayesopt2 <- function(objective_func, ..., iter = 10,
     message(sprintf("input: %s, output: %f", paste(as.character(grid[i,]), collapse = ", "), y))
   }
   # Search ------------------------------------------------------------------
-  for(i in seq_len(iter - 3)) {
-    gp_pred <- gp_fit(grid[inds, ], ys, kernel_func = kernel_func)
+  for(i in seq_len(iter - initial_size)) {
+    gp_pred <- gp_fit(grid[inds, ], ys, noise, kernel_func = kernel_func)
     pred <- gp_pred(grid[-inds, ])
     next_ind <- acq_func(pred$mu, pred$sigma2)
     next_ind <- next_ind + sum(inds < seq_len(nrow(grid))[-inds][next_ind])

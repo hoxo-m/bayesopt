@@ -4,8 +4,8 @@
 \alias{bayesopt2}
 \title{Bayesian Optimization}
 \usage{
-bayesopt2(objective_func, ..., iter = 10, kernel = c("squared_exponential"),
-  acq_func = acq_GP_UCB())
+bayesopt2(objective_func, ..., iter = 10, noise = TRUE,
+  kernel = c("squared_exponential"), acq_func = acq_GP_UCB())
 }
 \arguments{
 \item{objective_func}{a function.}
@@ -13,6 +13,8 @@ bayesopt2(objective_func, ..., iter = 10, kernel = c("squared_exponential"),
 \item{...}{list of parameters.}
 
 \item{iter}{an integer.}
+
+\item{noise}{logical.}
 
 \item{kernel}{a character string.}
 

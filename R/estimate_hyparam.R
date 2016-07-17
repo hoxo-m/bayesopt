@@ -2,67 +2,80 @@
 #'
 #' @param x_mat a matrix.
 #' @param y a numeric vector.
+#' @param noise logical.
 #' @param kernel_func a function.
+#' @param debug logical.
 #'
 #' @importFrom assertthat assert_that
+#' @importFrom Matrix rcond
 #' @importFrom stats optim
 #'
-estimate_hyperparam <- function(x_mat, y, kernel_func = kernel_gp_squared_exponential, debug = FALSE) {
+estimate_hyperparam <- function(x_mat, y, noise = TRUE,
+                                kernel_func = kernel_gp_squared_exponential,
+                                debug = FALSE) {
+  if(!is.matrix(x_mat)) x_mat <- matrix(x_mat)
   n_dim <- ncol(x_mat)
+  n_sample <- nrow(x_mat)
+  opt_m <- mean(y)
+  y <- y - opt_m
+
+  trans_func <- function(x) exp(x) + 1
+  # trans_func <- function(x) x
 
   obj_func <- function(params) {
-    nu <- params[1]
-    theta0 <- params[2]
-    theta <- params[-(1:2)]
-    if (nu < 0 || theta0 < 0 || any(theta < 0)) return(-Inf)
+    if (noise) {
+      nu <- trans_func(params[1])
+      theta <- params[-1]
+      theta0 <- 1
+      if (nu < 1 || any(theta <= 0)) return(min_log_likelihood)
+    } else {
+      nu <- 1
+      theta <- params
+      theta0 <- 1
+      if (any(theta <= 0)) return(min_log_likelihood)
+    }
     cov_mat <- compute_covariance_matrix(x_mat, nu = nu, theta = theta, theta0 = theta0,
                                          kernel_func = kernel_func)
-    if (cov_mat[1,1] > var(y)) return(-Inf)
+
+    if (rcond(cov_mat) < 1e-10) return(min_log_likelihood)
+
+    inv_cov_mat <- solve(cov_mat)
     y_colvec <- matrix(y)
-    exponent <- - (1/2) * ( t(y_colvec) %*% solve(cov_mat) %*% y_colvec )
-    denominator <- (1/2) * n_dim * log(2 * pi) + (1/2) * log(det(cov_mat))
+    exponent <- - ( t(y_colvec) %*% inv_cov_mat %*% y_colvec )
+    denominator <- log(det(cov_mat))
     log_likelihood <- exponent - denominator
     log_likelihood
   }
 
-  initial_vars <- c(nu = 0, theta0 = 1, rep(1, n_dim))
+  theta_uppers <- apply(x_mat, 2, function(x) {
+    (diff(range(x)) / 2) ^ 2
+  })
 
-  pre <- optim(initial_vars, obj_func, control = list(trace = debug, fnscale = -1), method = "BFGS")
-  assert_that(pre$convergence == 0)
-  result <- optim(pre$par, obj_func, control = list(trace = debug, fnscale = -1, maxit = 1000))
-  assert_that(result$convergence == 0)
-  opt_nu <- unname(result$par[1])
-  opt_theta0 <- unname(result$par[2])
-  opt_theta <- unname(result$par[-(1:2)])
-  list(nu = opt_nu, theta0 = opt_theta0, theta = opt_theta)
-}
-
-
-estimate_hyperparam2 <- function(x_mat, y, kernel_func = kernel_gp_squared_exponential, debug=FALSE) {
-  n_dim <- ncol(x_mat)
-
-  obj_func <- function(params) {
-    theta0 <- params[1]
-    theta <- params[-(1)]
-    if (theta0 < 0 || any(theta < 0)) return(-Inf)
-    cov_mat <- compute_covariance_matrix(x_mat, nu = 0, theta = theta, theta0 = theta0,
-                                         kernel_func = kernel_func)
-    y_colvec <- matrix(y)
-    exponent <- - (1/2) * ( t(y_colvec) %*% solve(cov_mat) %*% y_colvec )
-    denominator <- (1/2) * n_dim * log(2 * pi) + (1/2) * log(det(cov_mat))
-    log_likelihood <- exponent - denominator
-    log_likelihood
+  if (noise) {
+    initial_vars <- c(nu = 0, theta = theta_uppers / 2)
+  } else {
+    initial_vars <- c(theta = theta_uppers / 2)
   }
 
-  # initial_vars <- c(nu = 1, theta0 = 1, rep(1, n_dim))
-  initial_vars <- c(theta0 = 1, rep(1, n_dim))
+  initial_value <- obj_func(initial_vars)
+  min_log_likelihood <- initial_value
 
-  # pre <- optim(initial_vars, obj_func, control = list(trace = debug, fnscale = -1, maxit = 500), method = "BFGS")
-  # assert_that(pre$convergence == 0)
-  result <- optim(initial_vars, obj_func, control = list(trace = debug, fnscale = -1, maxit = 500))
+  if (length(initial_vars) == 1) {
+    result <- optim(initial_vars, obj_func, control = list(trace = debug, fnscale = -1, maxit = 5000), method = "Brent", lower = 0, upper = theta_uppers)
+  } else {
+    result <- optim(initial_vars, obj_func, control = list(trace = debug, fnscale = -1, maxit = 5000))
+    # result <- optim(result$par, obj_func, control = list(trace = debug, fnscale = -1, maxit = 1000), method="BFGS")
+  }
   assert_that(result$convergence == 0)
-  opt_theta0 <- unname(result$par[1])
-  opt_theta <- unname(result$par[-(1)])
-  list(theta0 = opt_theta0, theta = opt_theta)
-}
 
+  if (noise) {
+    opt_nu <- unname(trans_func(result$par[1]))
+    opt_theta <- unname(result$par[-1])
+    opt_theta0 <- 1
+  } else {
+    opt_nu <- 1
+    opt_theta <- unname(result$par)
+    opt_theta0 <- 1
+  }
+  list(m = opt_m, nu = opt_nu, theta0 = opt_theta0, theta = opt_theta)
+}
