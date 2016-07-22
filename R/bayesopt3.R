@@ -43,5 +43,5 @@ bayesopt3 <- function(objective_func, ..., iter = 10) {
   max_y_ind <- which.max(ys)
   max_y <- ys[max_y_ind]
   max_x <- grid[inds[max_y_ind], ]
-  list(opt_x = max_x, opt_y = max_y)
+  list(opt_x = max_x, opt_y = max_y, ys = ys)
 }

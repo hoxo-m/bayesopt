@@ -38,9 +38,10 @@ bayesopt2 <- function(objective_func, ..., iter = 10, noise = TRUE,
   # Search ------------------------------------------------------------------
   for(i in seq_len(iter - initial_size)) {
     gp_pred <- gp_fit(grid[inds, ], ys, noise, kernel_func = kernel_func)
-    pred <- gp_pred(grid[-inds, ])
+    # pred <- gp_pred(grid[-inds, ])
+    pred <- gp_pred(grid)
     next_ind <- acq_func(pred$mu, pred$sigma2)
-    next_ind <- next_ind + sum(inds < seq_len(nrow(grid))[-inds][next_ind])
+    # next_ind <- next_ind + sum(inds < seq_len(nrow(grid))[-inds][next_ind])
     y <- evaluate(next_ind)
     message(sprintf("input: %s, output: %f", paste(as.character(grid[next_ind,]), collapse = ", "), y))
     inds <- c(inds, next_ind)
@@ -50,5 +51,5 @@ bayesopt2 <- function(objective_func, ..., iter = 10, noise = TRUE,
   max_y_ind <- which.max(ys)
   max_y <- ys[max_y_ind]
   max_x <- grid[inds[max_y_ind], ]
-  list(opt_x = max_x, opt_y = max_y)
+  list(opt_x = max_x, opt_y = max_y, ys = ys)
 }

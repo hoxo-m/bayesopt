@@ -60,6 +60,7 @@ acq_GP_MI <- function(delta = 1e-6, alpha = log(2/delta), kappa = sqrt(alpha)) {
 #' @export
 acq_GP_UCB_full_bayes <- function(beta = log(2/1e-6), kappa = sqrt(beta)) {
   acq_func <- function(x_mat, y, new_x_mat) {
+    if (!require(rstan)) stop("rstan is not found.")
     standata <- list(
       n_sample = nrow(x_mat),
       n_dim = ncol(x_mat),
@@ -71,8 +72,8 @@ acq_GP_UCB_full_bayes <- function(beta = log(2/1e-6), kappa = sqrt(beta)) {
     )
     # print(file.exists("R/acq_ucb_se.stan"))
     # stanmodel <- rstan::stan_model("R/acq_ucb_se.stan")
-    # stanmodel <- readRDS("R/acq_ucb_se.rds")
-    stanfit <- rstan::sampling(stanmodel, data = standata, chains = 1, verbose = FALSE)
+    stanmodel <- readRDS("R/acq_ucb_se.rds")
+    stanfit <- rstan::sampling(stanmodel, data = standata, chains = 1, verbose = FALSE, warmup = 200, iter = 700)
     acqs <- colMeans(rstan::extract(stanfit, pars = "acq")$acq)
     max_acq <- max(acqs)
     max_inds <- which(acqs == max_acq)
