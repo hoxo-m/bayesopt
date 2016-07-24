@@ -12,7 +12,7 @@
 #' @importFrom GPfit GP_fit predict.GP plot.GP
 #' @importFrom graphics legend
 #' @export
-bayesopt <- function(objective_func, ..., iter = 10, init_size = 3,
+bayesopt <- function(objective_func, ..., iter = 10, init_size = dimension+1,
                      kernel = c("matern5_2", "matern3_2", "square_exp"),
                      acq_func = acq_GP_UCB(), plot = FALSE) {
   # Prepare -----------------------------------------------------------------
@@ -53,10 +53,10 @@ bayesopt <- function(objective_func, ..., iter = 10, init_size = 3,
       plot(objective_func, add=TRUE, col=3)
       legend("topleft", legend = c("true", "pred"), col = c(3, 4), lty = 1)
     }
-    # pred <- predict.GP(gp, grid[-inds, ])
-    pred <- predict.GP(gp, grid)
+    pred <- predict.GP(gp, grid[-inds, ])
+    # pred <- predict.GP(gp, grid)
     next_ind <- acq_func(pred$Y_hat, pred$MSE)
-    # next_ind <- next_ind + sum(inds < seq_len(nrow(grid))[-inds][next_ind])
+    next_ind <- next_ind + sum(inds < seq_len(nrow(grid))[-inds][next_ind])
     y <- evaluate(next_ind)
     message(sprintf("input: %s, output: %f", paste(as.character(grid[next_ind,]), collapse = ", "), y))
     inds <- c(inds, next_ind)

@@ -4,8 +4,9 @@
 \alias{bayesopt}
 \title{Bayesian Optimization}
 \usage{
-bayesopt(objective_func, ..., iter = 10, kernel = c("matern5_2",
-  "matern3_2", "square_exp"), acq_func = acq_GP_UCB(), plot = FALSE)
+bayesopt(objective_func, ..., iter = 10, init_size = dimension + 1,
+  kernel = c("matern5_2", "matern3_2", "square_exp"),
+  acq_func = acq_GP_UCB(), plot = FALSE)
 }
 \arguments{
 \item{objective_func}{a function.}

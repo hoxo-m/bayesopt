@@ -24,47 +24,64 @@ functions {
     }
     return cov_mat;
   }
-  vector acq_ucb_se(matrix new_x_mat, matrix x_mat, vector y, real m, real nu, real theta0, vector theta, real kappa) {
+  vector acq_ucb_se(matrix new_x_mat, matrix x_mat, vector y, real nu, real theta0, vector theta, real kappa) {
     matrix[rows(x_mat), rows(x_mat)] cov_mat;
     matrix[rows(x_mat), rows(x_mat)] inv_cov_mat;
-    vector[rows(y)] y_colvec;
     matrix[rows(new_x_mat), rows(x_mat)] k;
-    vector[rows(new_x_mat)] mu;
-    vector[rows(new_x_mat)] sigma2;
+    vector[rows(new_x_mat)] sigma;
     cov_mat = compute_covariance_matrix(x_mat, nu, theta0, theta);
     inv_cov_mat = inverse_spd(cov_mat);
-    y_colvec = y - m;
     for (i in 1:rows(new_x_mat)) {
       for (j in 1:rows(x_mat)) {
         k[i, j] = kernel_gp_squared_exponential(new_x_mat[i, ], x_mat[j, ], theta);
       }
     }
-    mu = k * inv_cov_mat * y_colvec;
     for (i in 1:rows(k)) {
-      sigma2[i] = theta0 * kernel_gp_squared_exponential(new_x_mat[i,], new_x_mat[i,], theta) - quad_form(inv_cov_mat, to_vector(k[i,]));
+      sigma[i] = sqrt(theta0 - quad_form(inv_cov_mat, to_vector(k[i,])));
     }
-    return mu + kappa * sigma2;
+    return y + kappa * sigma;
   }
 }
 data {
-  int<lower=0> n_sample;
-  int<lower=0> n_dim;
-  int<lower=0> n_sample_new;
+  int<lower=1> n_sample;
+  int<lower=1> n_dim;
+  int<lower=1> n_sample_new;
   matrix[n_sample, n_dim] x_mat;
   vector[n_sample] y;
   matrix[n_sample_new, n_dim] new_x_mat;
   real<lower=0> kappa;
+}
+transformed data {
+  int<lower=1> N;
+  matrix[N, n_dim] x;
+  N = n_sample + n_sample_new;
+  for (i in 1:n_sample) {
+    for (j in 1:n_dim) {
+      x[i, j] = x_mat[i, j];
+    }
+  }
+  for (i in 1:n_sample_new) {
+    for (j in 1:n_dim) {
+      x[n_sample + i, j] = new_x_mat[i, j];
+    }
+  }
 }
 parameters {
   real mu;
   real<lower=0> nu;
   real<lower=0> theta0;
   vector<lower=0>[n_dim] theta;
+  vector[n_sample_new] y_pred;
+}
+transformed parameters {
+  vector[N] y_all;
+  matrix[N, N] cov_mat;
+  cov_mat = compute_covariance_matrix(x, nu, theta0, theta);
+  for (i in 1:n_sample) y_all[i] = y[i];
+  for (i in 1:n_sample_new) y_all[i + n_sample] = y_pred[i];
 }
 model {
-  matrix[n_sample, n_sample] cov_mat;
-  cov_mat = compute_covariance_matrix(x_mat, nu, theta0, theta);
-  y ~ multi_normal(rep_vector(mu, n_sample), cov_mat);
+  target += multi_normal_log(y_all, rep_vector(mu, N), cov_mat);
   mu ~ cauchy(0, 5);
   nu ~ cauchy(0, 5);
   theta0 ~ cauchy(0, 5);
@@ -72,5 +89,5 @@ model {
 }
 generated quantities {
   vector[rows(new_x_mat)] acq;
-  acq = acq_ucb_se(new_x_mat, x_mat, y, mu, nu, theta0, theta, kappa);
+  acq = acq_ucb_se(new_x_mat, x_mat, y_pred, nu, theta0, theta, kappa);
 }
