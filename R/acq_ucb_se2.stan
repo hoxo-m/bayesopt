@@ -2,9 +2,11 @@ functions {
   real kernel_gp_squared_exponential(row_vector x1, row_vector x2, vector theta) {
     vector[cols(x1)] x1a;
     vector[cols(x2)] x2a;
+    real value;
     x1a = to_vector(x1) ./ theta;
     x2a = to_vector(x2) ./ theta;
-    return exp(- squared_distance(x1a, x2a) );
+    value = exp(- squared_distance(x1a, x2a) );
+    return if_else(value < 0, 0.0, value);
   }
   matrix compute_covariance_matrix(matrix x_mat, real nu, real theta0, vector theta) {
     matrix[rows(x_mat), rows(x_mat)] cov_mat;
@@ -14,11 +16,9 @@ functions {
           cov_mat[i, j] = theta0 + nu;
         } else {
           real value;
-          real value2;
           value = kernel_gp_squared_exponential(x_mat[i,], x_mat[j, ], theta);
-          value2 = if_else(value < 0, 0., theta0 * value);
-          cov_mat[i, j] = value2;
-          cov_mat[j, i] = value2;
+          cov_mat[i, j] = value;
+          cov_mat[j, i] = value;
         }
       }
     }
@@ -37,7 +37,9 @@ functions {
       }
     }
     for (i in 1:rows(k)) {
-      sigma[i] = sqrt(theta0 - quad_form(inv_cov_mat, to_vector(k[i,])));
+      real value;
+      value = theta0 - quad_form(inv_cov_mat, to_vector(k[i,]));
+      sigma[i] = if_else(value < 0, 0.0, sqrt(value));
     }
     return y + kappa * sigma;
   }
